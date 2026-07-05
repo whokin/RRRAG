@@ -1,0 +1,17 @@
+# Scraped data is never committed (ADR-0001) — canonical home is private R2
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Env / secrets
+.env
+
+# Node (frontend, later)
+node_modules/
+
+# macOS
+.DS_Store
