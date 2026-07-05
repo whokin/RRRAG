@@ -54,6 +54,18 @@ the environment is part of the repo, so "works on my machine" can't happen.
 _Dig deeper: devcontainers, hermetic builds, Twelve-Factor App (dev/prod
 parity)._
 
+### Format drift in long-lived content (what the probe caught)
+Five episodes spanning 8 years surfaced four format eras before the full
+crawl ran once: three title conventions ("Episode 50: X", "Episode 350 - X",
+"X | #416"), two timestamp styles ("[0:01:58.0]" vs "(0:04:01)"), speaker
+labels as `<strong>` vs plain text, an interview era (#250) where host
+questions are bold paragraphs and answers are unlabeled, and reference links
+as anchors vs plain "Title — URL" text with URLs wrapping across paragraphs.
+Every one of these would have been a mid-crawl surprise at 2 s/request.
+Boilerplate that mimics data ("Disclaimer:" matching the speaker pattern) is
+the classic parser false-positive.
+_Dig deeper: schema drift, web-scraping archaeology, parser golden tests._
+
 ### Orchestration (queued for stretch)
 The automated weekly Refresh will be built with Airflow — DAGs, scheduling,
 retries, alerting, backfills — deliberately oversized for one weekly job,

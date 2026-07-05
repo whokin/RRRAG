@@ -1,0 +1,10 @@
+{
+  "name": "RRRAG",
+  "build": { "dockerfile": "Dockerfile" },
+  "postCreateCommand": "uv sync",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.ruff"]
+    }
+  }
+}
