@@ -42,3 +42,16 @@
   speakers.
 - Episode-number inference restricted to pure-numeric slugs (`crypto1` is not
   episode 1).
+
+### Full crawl results (bronze layer complete)
+- All 511 discovered pages fetched (~20 min, zero blocks or retries).
+- **412 canonical Episode Records** in `data/raw/`; **68 alias URLs** demoted
+  (the "topic/guest pages" turned out to be alternate URLs for real episodes
+  with byte-identical content — new Manifest state `alias`, canonical slug =
+  pure-numeric first); **31 flagged** for backfill: 17 crypto-series episodes
+  (no episode number — numbering decision pending), 4 numeric episodes with
+  zero transcript text (98, 110, 114, 289), plus bonus/special pages.
+- Speaker-label coverage (headline EDA number): 115 of 412 records have no
+  speaker labels; the interview-era episodes have mostly unattributed turns.
+  Full EDA in the corpus-stats notebook is next session's work.
+- Data exists locally only — R2 bucket + `make sync-data` not yet set up.

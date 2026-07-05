@@ -59,7 +59,7 @@ def main() -> None:
         m = manifest.load()
         counts = Counter(e["status"] for e in m.values())
         print(f"{len(m)} episodes in Manifest: " + ", ".join(f"{s}={n}" for s, n in sorted(counts.items())))
-        gaps = Counter(g for e in m.values() for g in e["gaps"])
+        gaps = Counter(g.split(":")[0] for e in m.values() for g in e["gaps"])
         if gaps:
             print("gaps: " + ", ".join(f"{g}={n}" for g, n in sorted(gaps.items())))
         for e in manifest.select(m, statuses=("flagged",)):

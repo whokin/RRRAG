@@ -41,9 +41,15 @@ _Avoid_: highlight, bookmark
 
 **Manifest**:
 The per-episode status ledger: every discovered episode with its URL and
-current state (discovered, fetched, parsed, flagged, backfilled). "Flagged
-episodes" is a filter over the Manifest, not a separate list.
+current state (discovered, fetched, parsed, flagged, backfilled, alias).
+"Flagged episodes" is a filter over the Manifest, not a separate list.
 _Avoid_: flag list, error log
+
+**Alias**:
+An alternate URL the show publishes for an existing Episode (topic or guest
+slug); its content is identical to the canonical page, so it never becomes
+its own Episode Record.
+_Avoid_: duplicate, topic page
 
 **Corpus**:
 The full set of Episode Records.

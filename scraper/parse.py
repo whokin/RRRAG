@@ -262,5 +262,34 @@ def run(episodes: list[int] | None = None, reparse_all: bool = False) -> None:
                 f"{len(record['transcript'])} turns, {len(record['speakers'])} speakers, "
                 f"{len(record['key_points'])} key points, {len(record['links'])} links{note}"
             )
+    _dedupe_aliases(m)
     manifest.save(m)
     print(f"parse: {parsed} Episode Records, {flagged} flagged")
+
+
+def _slug_rank(entry: dict) -> tuple:
+    """Canonical preference: pure-numeric slug, then any slug with digits,
+    then alphabetical. The show publishes topic/guest alias URLs for the
+    same post; content is byte-identical."""
+    slug = entry["slug"]
+    return (not slug.isdigit(), not any(c.isdigit() for c in slug), slug)
+
+
+def _dedupe_aliases(m: dict[str, dict]) -> None:
+    by_episode: dict[int, list[dict]] = {}
+    for entry in m.values():
+        if entry["status"] == "parsed" and entry["episode"] is not None:
+            by_episode.setdefault(entry["episode"], []).append(entry)
+    demoted = 0
+    for group in by_episode.values():
+        if len(group) < 2:
+            continue
+        group.sort(key=_slug_rank)
+        canonical, *aliases = group
+        for entry in aliases:
+            entry["status"] = "alias"
+            entry["alias_of"] = canonical["slug"]
+            (manifest.RAW_DIR / f"{entry['slug']}.json").unlink(missing_ok=True)
+            demoted += 1
+    if demoted:
+        print(f"parse: {demoted} alias URLs demoted (duplicate episode content)")

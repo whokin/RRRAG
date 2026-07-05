@@ -13,7 +13,7 @@ MANIFEST_PATH = DATA_DIR / "manifest.json"
 HTML_DIR = DATA_DIR / "html"
 RAW_DIR = DATA_DIR / "raw"
 
-STATUSES = ("discovered", "fetched", "parsed", "flagged", "backfilled")
+STATUSES = ("discovered", "fetched", "parsed", "flagged", "backfilled", "alias")
 
 
 def now_iso() -> str:
