@@ -59,6 +59,8 @@ def main() -> None:
         m = manifest.load()
         counts = Counter(e["status"] for e in m.values())
         print(f"{len(m)} episodes in Manifest: " + ", ".join(f"{s}={n}" for s, n in sorted(counts.items())))
+        series = Counter((e.get("series") or "?") for e in m.values() if e["status"] == "parsed")
+        print("parsed by series: " + ", ".join(f"{s}={n}" for s, n in sorted(series.items())))
         gaps = Counter(g.split(":")[0] for e in m.values() for g in e["gaps"])
         if gaps:
             print("gaps: " + ", ".join(f"{g}={n}" for g, n in sorted(gaps.items())))

@@ -65,8 +65,9 @@ everything, structured:
   crawlers), filtered to episode pages — no guessing URL patterns. This seeds
   the **Manifest**: a per-episode ledger (URL, episode number, status:
   discovered → fetched → parsed / flagged → backfilled).
-- **Minimum viable Episode Record:** episode number, title, publish date,
-  source URL, and transcript *text*. Everything else — Speaker Turns, summary,
+- **Minimum viable Episode Record:** episode identity (series + number within
+  the series; main series implied, crypto series numbered from its titles),
+  title, publish date, source URL, and transcript *text*. Everything else — Speaker Turns, summary,
   key points, guests, links — is optional enrichment; gaps are recorded in the
   Manifest (so coverage is queryable) but don't flag the episode. An unlabeled
   transcript stays in the Corpus: content beats attribution.

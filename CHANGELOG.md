@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-07-05 (later) — corpus-stats EDA + crypto series joins the Corpus
+
+### Decisions (grilled)
+- **Episode identity is (series, number)** — Option B over string
+  pseudo-numbers: `series: "main" | "crypto"`, number stays an integer,
+  extracted from titles ("Understanding Crypto 5"), no hardcoded lists.
+  "C5"-style short forms are display conventions only. Glossary updated.
+- Raw filenames stay **slug-based** (provenance over browsability; identity
+  lives in the Manifest, filenames-as-metadata go stale).
+- EDA notebook lives in `experiments/` (first citizen of the ADR-0002
+  sandbox), committed output-free; pandas/matplotlib/jupyter are dev-group
+  deps; token numbers are chars/4 estimates until Stage 1 counts for real.
+
+### Corpus after this session
+- **430 Episode Records** (413 main + 17 crypto), 68 aliases, **13 flagged**.
+- Parser fallback recovers *unmarked* transcripts (≥20 speaker-labeled
+  paragraphs, no section headers) — recovered #289.
+
+### EDA findings (experiments/corpus_stats.ipynb)
+- Coverage: links 99.8%, key points 99.1%, summary 96.3%, **speaker labels
+  76.5%** — no-label episodes are 90 main-series (all in #11–#214, the early
+  era) + 11 crypto; 28.7% of transcript *text* is unattributed.
+- Size: **~6.6M transcript tokens** (PLAN guessed 15–20M — 2.5–3× over), →
+  **~9.8k chunks** at 800 tokens/15% overlap (PLAN guessed 50–65k). Embedding
+  cost is well under a dollar, not single-digit dollars.
+- Median episode: ~15.4k tokens, 111 turns; **median Speaker Turn is only ~45
+  tokens** — speaker-turn chunking (Stage 6) must merge turns, not split them.
+- Flagged inventory resolved: 3 bonus episodes + 1 special (each with 2–4
+  alias URLs), the crypto-series landing page (a stub), #98 (show notes only,
+  no transcript published), #110/#114 (transcript-scale text but zero speaker
+  labels — human call needed on whether it's transcript or notes).
+
 ## 2026-07-05 — Stage 0: repo bootstrap + scraper
 
 ### Decisions (grilled, see PLAN.md and docs/adr/)

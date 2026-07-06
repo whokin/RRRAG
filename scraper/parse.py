@@ -38,6 +38,25 @@ MIN_TRANSCRIPT_CHARS = 1000
 REQUIRED = ("episode", "title", "date", "transcript_text")
 
 
+def _identity(entry: dict, title: str | None) -> tuple[str | None, int | None]:
+    """Episode identity is (series, number-within-series); title-driven,
+    slug-confirmed. No hardcoded episode lists — 'Understanding Crypto 18'
+    would be picked up by a future Refresh without a code change."""
+    t = title or ""
+    m = re.match(r"understanding crypto\s+(\d+)", t, re.I)
+    if m:
+        return "crypto", int(m.group(1))
+    m = re.fullmatch(r"crypto(\d+)", entry["slug"])
+    if m:
+        return "crypto", int(m.group(1))
+    m = re.search(r"episode\s+(\d+)", t, re.I) or re.search(r"#(\d+)\b", t)
+    if m:
+        return "main", int(m.group(1))
+    if entry["episode"] is not None:
+        return "main", entry["episode"]
+    return None, None
+
+
 def _blocks(body):
     """Paragraph-level blocks in document order; <p> inside a list is the
     list's content, not a separate block (the #50-era duplication)."""
@@ -95,6 +114,47 @@ def _flush_text_refs(entries: list[list[str]], links: list[dict]) -> None:
             links.append(link)
 
 
+def _speaker_match(block) -> re.Match | None:
+    if block.name != "p":
+        return None
+    text = block.get_text(" ", strip=True)
+    m = SPEAKER.match(text) if text else None
+    if m and len(m.group(1)) <= 40 and m.group(1) not in NON_SPEAKER_LABELS:
+        return m
+    return None
+
+
+def _unmarked_transcript(blocks) -> list[dict]:
+    """Fallback for pages with no transcript section marker at all (#289):
+    only fires on dense speaker labels — the one signal that reliably says
+    'this is a transcript' rather than long show notes."""
+    matches = [i for i, b in enumerate(blocks) if _speaker_match(b)]
+    if len(matches) < 20:
+        return []
+    end = next(
+        (
+            i
+            for i, b in enumerate(blocks)
+            if i > matches[0]
+            and b.name in ("h2", "h3", "h4")
+            and REFERENCES_MARKER.search(b.get_text(" ", strip=True)[:60])
+        ),
+        len(blocks),
+    )
+    turns: list[dict] = []
+    for b in blocks[matches[0] : end]:
+        if b.name != "p":
+            continue
+        text = b.get_text(" ", strip=True)
+        if not text or not re.search(r"\w", text):
+            continue
+        if m := _speaker_match(b):
+            turns.append({"speaker": m.group(1), "text": m.group(2).strip()})
+        elif turns:
+            turns[-1]["text"] += "\n\n" + text
+    return turns
+
+
 def _key_point(text: str) -> dict | None:
     m = TIMESTAMP.search(text)
     stripped = TIMESTAMP.sub("", text).strip(" .—-")
@@ -116,11 +176,7 @@ def parse_snapshot(html: str, entry: dict) -> tuple[dict | None, list[str], list
     time_el = body.find("time") or soup.find("time")
     date = time_el.get("datetime") if time_el else None
 
-    episode = entry["episode"]
-    if episode is None and title:
-        m = re.search(r"episode\s+(\d+)", title, re.I) or re.search(r"#(\d+)\b", title)
-        if m:
-            episode = int(m.group(1))
+    series, episode = _identity(entry, title)
 
     summary_parts: list[str] = []
     key_points: list[dict] = []
@@ -130,7 +186,8 @@ def parse_snapshot(html: str, entry: dict) -> tuple[dict | None, list[str], list
     after_bold_question = False
     text_refs: list[list[str]] = []
 
-    for block in _blocks(body):
+    blocks = _blocks(body)
+    for block in blocks:
         text = block.get_text(" ", strip=True)
         if not text or not re.search(r"\w", text):  # empty or a "***" separator
             continue
@@ -184,6 +241,11 @@ def parse_snapshot(html: str, entry: dict) -> tuple[dict | None, list[str], list
                 _text_ref(text, text_refs)
 
     _flush_text_refs(text_refs, links)
+    recovered = False
+    if sum(len(t["text"]) for t in turns) < MIN_TRANSCRIPT_CHARS:
+        fallback = _unmarked_transcript(blocks)
+        if sum(len(t["text"]) for t in fallback) >= MIN_TRANSCRIPT_CHARS:
+            turns, recovered = fallback, True
     transcript_text = "\n\n".join(t["text"] for t in turns)
     speakers = sorted({t["speaker"] for t in turns if t["speaker"]})
     summary = "\n\n".join(summary_parts) or None
@@ -203,6 +265,8 @@ def parse_snapshot(html: str, entry: dict) -> tuple[dict | None, list[str], list
         return None, [], flags
 
     gaps = []
+    if recovered:
+        gaps.append("transcript recovered without section markers")
     unattributed = sum(1 for t in turns if not t["speaker"])
     if not speakers:
         gaps.append("no speaker labels")
@@ -216,6 +280,7 @@ def parse_snapshot(html: str, entry: dict) -> tuple[dict | None, list[str], list
         gaps.append("no links")
 
     record = {
+        "series": series,
         "episode": episode,
         "title": title,
         "date": date,
@@ -251,6 +316,7 @@ def run(episodes: list[int] | None = None, reparse_all: bool = False) -> None:
             flagged += 1
             print(f"parse: FLAGGED {entry['slug']} — {'; '.join(flags)}")
         else:
+            entry["series"] = record["series"]
             entry["episode"] = record["episode"]
             entry["status"] = "parsed"
             out = manifest.RAW_DIR / f"{entry['slug']}.json"
@@ -276,10 +342,11 @@ def _slug_rank(entry: dict) -> tuple:
 
 
 def _dedupe_aliases(m: dict[str, dict]) -> None:
-    by_episode: dict[int, list[dict]] = {}
+    by_episode: dict[tuple, list[dict]] = {}
     for entry in m.values():
         if entry["status"] == "parsed" and entry["episode"] is not None:
-            by_episode.setdefault(entry["episode"], []).append(entry)
+            key = (entry.get("series") or "main", entry["episode"])
+            by_episode.setdefault(key, []).append(entry)
     demoted = 0
     for group in by_episode.values():
         if len(group) < 2:

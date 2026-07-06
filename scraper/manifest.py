@@ -50,6 +50,7 @@ def new_entry(url: str) -> dict:
     return {
         "url": url,
         "slug": slug,
+        "series": None,  # set by parse; identity is title-driven
         "episode": infer_episode(slug),
         "status": "discovered",
         "discovered_at": now_iso(),

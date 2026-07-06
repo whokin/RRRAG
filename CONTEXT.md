@@ -9,8 +9,10 @@ primary product; the hosted tool is the artifact.
 ### Corpus
 
 **Episode**:
-One installment of the Rational Reminder podcast, identified by its episode
-number.
+One installment of the Rational Reminder podcast, identified by its series
+plus its number within that series (the main series is implied when
+unstated; e.g. episode 416 vs. crypto episode 5). "C5"-style short forms are
+a display convention, never a storage format.
 _Avoid_: show, podcast (the podcast is the whole series)
 
 **Page Snapshot**:

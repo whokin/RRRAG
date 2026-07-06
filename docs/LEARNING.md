@@ -66,6 +66,31 @@ Boilerplate that mimics data ("Disclaimer:" matching the speaker pattern) is
 the classic parser false-positive.
 _Dig deeper: schema drift, web-scraping archaeology, parser golden tests._
 
+### Measure, don't extrapolate (guesses vs. EDA)
+PLAN.md's corpus estimates were 15–20M tokens and 50–65k chunks; the measured
+numbers are 6.6M and ~9.8k — off by 2.5–6×. Every downstream sizing decision
+(embedding cost, index size, eval-run cost) changes when the guess is
+replaced by a count. This is why the corpus-stats notebook gates Stage 1.
+_Dig deeper: Fermi estimates vs. measurement, data profiling._
+
+### Composite identity over fused strings
+Crypto episodes got identity `(series, number)` — two honest fields — rather
+than a `"C5"` string that every consumer must parse forever. Display forms
+and storage forms are different things; range queries and filters need the
+integer back. Same family as the slug-vs-identity filename call: encode
+facts where they're authoritative (the ledger), not in derived names that
+drift.
+_Dig deeper: natural vs. surrogate keys, composite keys, display vs. storage
+representations._
+
+### Recovery heuristics need positive evidence
+The unmarked-transcript fallback only fires on ≥20 speaker-labeled
+paragraphs — a signal that can't plausibly be show notes. The tempting
+alternative ("any big text mass is a transcript") would silently misfile
+#98's show notes. A recovery pass should demand *stronger* evidence than the
+normal path, because it runs exactly where structure already failed.
+_Dig deeper: precision vs. recall in heuristics, conservative fallbacks._
+
 ### Orchestration (queued for stretch)
 The automated weekly Refresh will be built with Airflow — DAGs, scheduling,
 retries, alerting, backfills — deliberately oversized for one weekly job,
