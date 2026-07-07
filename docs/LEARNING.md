@@ -3,7 +3,7 @@
 One entry per concept or pattern, added in the session where it first mattered.
 Format: what it is, why it showed up here, keywords to dig deeper.
 
-## 2026-07-04 — Stage 0 planning
+## 2026-07-05 — Stage 0: repo bootstrap + scraper
 
 ### Medallion architecture (bronze / silver / gold)
 Layered data pipeline: keep the rawest capture immutable (bronze = Page
@@ -54,6 +54,15 @@ the environment is part of the repo, so "works on my machine" can't happen.
 _Dig deeper: devcontainers, hermetic builds, Twelve-Factor App (dev/prod
 parity)._
 
+### Orchestration (queued for stretch)
+The automated weekly Refresh will be built with Airflow — DAGs, scheduling,
+retries, alerting, backfills — deliberately oversized for one weekly job,
+chosen as a learning vehicle for DAG orchestration, not because the job
+needs it. Only worth building once the full sitemap→index pipeline exists to
+automate.
+_Dig deeper: Airflow DAGs, sensors, backfills; alternatives: Dagster, Prefect,
+cron + GitHub Actions._
+
 ### Format drift in long-lived content (what the probe caught)
 Five episodes spanning 8 years surfaced four format eras before the full
 crawl ran once: three title conventions ("Episode 50: X", "Episode 350 - X",
@@ -65,6 +74,8 @@ Every one of these would have been a mid-crawl surprise at 2 s/request.
 Boilerplate that mimics data ("Disclaimer:" matching the speaker pattern) is
 the classic parser false-positive.
 _Dig deeper: schema drift, web-scraping archaeology, parser golden tests._
+
+## 2026-07-05 (later) — corpus-stats EDA + crypto series joins the Corpus
 
 ### Measure, don't extrapolate (guesses vs. EDA)
 PLAN.md's corpus estimates were 15–20M tokens and 50–65k chunks; the measured
@@ -91,6 +102,8 @@ alternative ("any big text mass is a transcript") would silently misfile
 normal path, because it runs exactly where structure already failed.
 _Dig deeper: precision vs. recall in heuristics, conservative fallbacks._
 
+## 2026-07-06 — attribution enrichment
+
 ### Attribution asymmetry (infer only what evidence supports)
 Interview answers got attributed (single guest in every title, corroborated
 by first-name addressing); interview questions did not (2/3 of episodes
@@ -101,10 +114,29 @@ asked this") and a co-endorsement claim ("the hosts think this") can share
 storage but are different assertions; generation must only voice the first.
 _Dig deeper: provenance, claim-level confidence, entity resolution vs NER._
 
-### Orchestration (queued for stretch)
-The automated weekly Refresh will be built with Airflow — DAGs, scheduling,
-retries, alerting, backfills — deliberately oversized for one weekly job,
-chosen as the learning vehicle because it's the industry-standard
-orchestrator.
-_Dig deeper: Airflow DAGs, sensors, backfills; alternatives: Dagster, Prefect,
-cron + GitHub Actions._
+## 2026-07-07 — R2 sync; Stage 0 complete
+
+### Additive vs. mirroring sync
+`make sync-data` / `pull-data` use `rclone copy` (never deletes) rather than
+`rclone sync` (mirrors, deleting whatever's missing on the source side). A
+fresh machine running `sync-data` with an empty local `data/` can't wipe the
+canonical R2 store just by existing. The corpus is append-mostly, so the
+safety property costs nothing; deletions stay a deliberate, explicit act
+instead of a side effect of the wrong direction on the wrong day.
+_Dig deeper: rsync `--delete` semantics, idempotent vs. destructive sync,
+multi-writer replication safety._
+
+## 2026-07-07 (later) — Stage 1: naive RAG
+
+### Denormalization for metadata filtering
+A vector store's row is flat — LanceDB (or Chroma, pgvector) can only filter
+on columns that live on the chunk row itself, not on fields nested inside
+the Episode Record a chunk came from. So anything worth filtering by later
+(episode identity, date, speaker) has to be copied onto every chunk at
+chunking time — an enrichment/denormalization step, not a query-time lookup.
+Came up discussing inferred vs. observed speaker attribution: a single
+`speaker` column keeps filters simple (one WHERE clause for "what did Ben
+say"), while a separate `speaker_source: "observed"|"inferred"` column keeps
+the epistemics visible without complicating the filter.
+_Dig deeper: denormalization in OLAP/read-heavy stores, star-schema
+flattening, vector-DB metadata filtering._
