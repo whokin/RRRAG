@@ -32,7 +32,7 @@ SPEAKER = re.compile(
 )
 
 # label-shaped prefixes that aren't people (outro boilerplate)
-NON_SPEAKER_LABELS = {"Disclaimer", "Note", "Announcement", "Correction"}
+NON_SPEAKER_LABELS = {"Disclaimer", "Disclosure", "Note", "Announcement", "Correction"}
 
 MIN_TRANSCRIPT_CHARS = 1000
 REQUIRED = ("episode", "title", "date", "transcript_text")
@@ -217,23 +217,27 @@ def parse_snapshot(html: str, entry: dict) -> tuple[dict | None, list[str], list
         elif section == "transcript":
             if block.name != "p":
                 continue
+            # unattributed turns carry a `style`: the observed page evidence
+            # (bold question / plain answer / boilerplate label) that a later
+            # enrichment step turns into inferred_speaker — kept separate so
+            # observation and inference never share a field
             m = SPEAKER.match(text)
             if m and len(m.group(1)) <= 40 and m.group(1) in NON_SPEAKER_LABELS:
-                turns.append({"speaker": None, "text": text})  # boilerplate, not a person
+                turns.append({"speaker": None, "style": "boilerplate", "text": text})
                 after_bold_question = False
             elif m and len(m.group(1)) <= 40:
                 turns.append({"speaker": m.group(1), "text": m.group(2).strip()})
                 after_bold_question = False
             elif _fully_bold(block):
-                turns.append({"speaker": None, "text": text})
+                turns.append({"speaker": None, "style": "question", "text": text})
                 after_bold_question = True
             elif after_bold_question:
-                turns.append({"speaker": None, "text": text})  # the answer begins
+                turns.append({"speaker": None, "style": "answer", "text": text})
                 after_bold_question = False
             elif turns:
                 turns[-1]["text"] += "\n\n" + text
             else:
-                turns.append({"speaker": None, "text": text})
+                turns.append({"speaker": None, "style": "unknown", "text": text})
         elif section == "references":
             if block.find("a", href=True):
                 _add_links(block, links)
