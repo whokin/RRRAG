@@ -140,3 +140,25 @@ say"), while a separate `speaker_source: "observed"|"inferred"` column keeps
 the epistemics visible without complicating the filter.
 _Dig deeper: denormalization in OLAP/read-heavy stores, star-schema
 flattening, vector-DB metadata filtering._
+
+### Verify a rate limit empirically before planning around it
+Assumed a 14-hour throttled overnight run was necessary under Voyage's
+no-payment-method tier (3 RPM / 10K TPM). A one-request probe after adding a
+(never-charged) payment method showed the limit was already gone — the
+~14-hour plan collapsed to ~2 minutes. The lesson isn't "add a card sooner,"
+it's: when a plan's shape is dictated by a constraint from a provider's docs
+or an error message, spend one cheap request confirming the constraint
+still holds before committing engineering effort (resumable checkpointing,
+overnight scheduling) to work around it.
+_Dig deeper: probing before provisioning, cost of premature optimization for
+an unverified constraint._
+
+### Checkpointing pays for itself even when the slow path is skipped
+Built resumable indexing (commit every 120 chunks, skip already-embedded
+`chunk_id`s) to survive an assumed 14-hour run. The overnight run never
+happened, but the same code immediately absorbed two real interruptions —
+Docker Desktop's own restart mid-embed, and switching pacing strategy
+mid-run — with zero lost work. Idempotent resumability is worth building
+before a long external-API job starts, not after the first crash.
+_Dig deeper: checkpointing, idempotent producers, exactly-once vs at-least-
+once processing._

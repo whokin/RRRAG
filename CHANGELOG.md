@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-07-07 (later) — full index built; retrieval verified
+
+- Voyage: no-card tier is 3 RPM **and** 10K TPM (TPM binding); adding a
+  payment method unlocks standard limits within seconds, still drawing from
+  the same 200M free tokens — confirmed empirically before committing to an
+  overnight throttled run. Plan pivoted from "run overnight at 10K TPM
+  (~14h)" to "add a card, run at full speed (~2 min)."
+- **Full `chunks_v1` index built: all 10,195 chunks / 430 episodes.**
+- Retrieval smoke-tested on 3 queries (specific/covered-calls,
+  cross-episode/DCA-vs-lump-sum, crypto-series/blockchain-fundamentals) —
+  all returned correct, on-topic, correctly-attributed passages. DCA query
+  pulled 4/5 results from the same episode (101), consistent with a
+  dedicated deep-dive; crypto query's top hit matched the guest named in
+  that episode's title.
+- `rag_core.answer` (generation) still untested — no `ANTHROPIC_API_KEY` yet
+  (deliberately deferred; no free tier exists for the Anthropic API).
+
 ## 2026-07-07 — data in R2; Stage 0 complete
 
 - First `make sync-data` run: 939 files / 236.8 MiB to the private
