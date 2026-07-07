@@ -1,11 +1,17 @@
 """Retrieve -> stuff prompt -> Claude answer. The naive baseline every later
 Stage is measured against; resist improving it before Stage 2's eval exists."""
 
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
 import anthropic
 
 from . import index
 
 MODEL = "claude-opus-4-8"
+TRACES = Path("data/traces.jsonl")  # one line per ask — replayable evidence
+
 
 SYSTEM = """\
 You answer questions about the Rational Reminder podcast (a Canadian podcast \
@@ -46,7 +52,7 @@ def ask(question: str, k: int = 8) -> dict:
         answer = "(The model declined to answer this request.)"
     else:
         answer = "".join(b.text for b in response.content if b.type == "text")
-    return {
+    result = {
         "answer": answer,
         "sources": [
             {
@@ -63,3 +69,17 @@ def ask(question: str, k: int = 8) -> dict:
             "output_tokens": response.usage.output_tokens,
         },
     }
+    trace = {
+        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "question": question,
+        "k": k,
+        "model": MODEL,
+        "retrieved": [
+            {"chunk_id": r["chunk_id"], "distance": round(r["_distance"], 4)} for r in rows
+        ],
+        "stop_reason": response.stop_reason,
+        **result,
+    }
+    with TRACES.open("a") as f:
+        f.write(json.dumps(trace, ensure_ascii=False) + "\n")
+    return result
