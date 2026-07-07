@@ -9,6 +9,7 @@ def main() -> None:
 
     p_index = sub.add_parser("index", help="chunk + embed the corpus into LanceDB")
     p_index.add_argument("--limit", type=int, help="only index the first N chunks (smoke test)")
+    p_index.add_argument("--rebuild", action="store_true", help="drop the table and start fresh")
 
     p_search = sub.add_parser("search", help="retrieval only — no LLM call")
     p_search.add_argument("query")
@@ -23,7 +24,7 @@ def main() -> None:
     if args.command == "index":
         from . import index
 
-        index.build(limit=args.limit)
+        index.build(limit=args.limit, rebuild=args.rebuild)
     elif args.command == "search":
         from . import index
 
