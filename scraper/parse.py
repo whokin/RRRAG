@@ -15,6 +15,7 @@ import re
 from bs4 import BeautifulSoup
 
 from . import manifest
+from .speakers import JUNK
 
 KEY_POINTS_MARKER = re.compile(r"key points from this episode", re.I)
 TRANSCRIPT_MARKER = re.compile(r"read the transcript|^transcript:?\s*$", re.I)
@@ -27,7 +28,7 @@ TIMESTAMP = re.compile(r"[\[(](\d+:\d{2}(?::\d{2})?(?:\.\d)?)[\])]")
 # optional leading timestamp, then "Firstname [Middle] Lastname:"
 SPEAKER = re.compile(
     r"^(?:[\[(]\d+:\d{2}(?::\d{2})?(?:\.\d+)?[\])]\s*)?"
-    r"([A-Z][\w.'’-]*(?:\s+[A-Z][\w.'’-]*){0,3}):\s*(.*)$",
+    r"([A-Z][\w.'’-]*(?:\s+[A-Z][\w.'’-]*){0,3})\s?:\s*(.*)$",
     re.S,
 )
 
@@ -225,7 +226,7 @@ def parse_snapshot(html: str, entry: dict) -> tuple[dict | None, list[str], list
             if m and len(m.group(1)) <= 40 and m.group(1) in NON_SPEAKER_LABELS:
                 turns.append({"speaker": None, "style": "boilerplate", "text": text})
                 after_bold_question = False
-            elif m and len(m.group(1)) <= 40:
+            elif m and len(m.group(1)) <= 40 and m.group(1) not in JUNK:
                 turns.append({"speaker": m.group(1), "text": m.group(2).strip()})
                 after_bold_question = False
             elif _fully_bold(block):

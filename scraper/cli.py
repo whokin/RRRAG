@@ -30,7 +30,10 @@ def main() -> None:
     p_parse.add_argument("--episodes", type=_episodes_arg)
     p_parse.add_argument("--all", action="store_true", help="re-parse everything, not just fetched")
 
-    sub.add_parser("refresh", help="discover + fetch + parse anything new")
+    p_enrich = sub.add_parser("enrich", help="write derived attribution into Episode Records")
+    p_enrich.add_argument("--episodes", type=_episodes_arg)
+
+    sub.add_parser("refresh", help="discover + fetch + parse + enrich anything new")
     sub.add_parser("status", help="Manifest summary")
 
     args = ap.parse_args()
@@ -47,12 +50,17 @@ def main() -> None:
         from . import parse
 
         parse.run(episodes=args.episodes, reparse_all=args.all)
+    elif args.command == "enrich":
+        from . import enrich
+
+        enrich.run(episodes=args.episodes)
     elif args.command == "refresh":
-        from . import discover, fetch, parse
+        from . import discover, enrich, fetch, parse
 
         discover.run()
         fetch.run()
         parse.run()
+        enrich.run()
     elif args.command == "status":
         from . import manifest
 

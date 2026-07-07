@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-07-06 — attribution enrichment + speaker table + notebook second pass
+
+### Decisions
+- **Attribute only where evidence is strong (validated on all 143 interview
+  episodes):** answer-style turns get `inferred_speaker` = the title's guest
+  (142/143 extractable, 0 multi-guest, first-name addressing corroborates
+  113/142, Q→A alternation 98% clean). Question turns stay unattributed —
+  101/143 interview episodes have zero in-episode evidence of which hosts
+  were present, and we don't assert what the page doesn't support. Chunks
+  will carry `turn_style` so questions remain filterable without name claims.
+- Generation-side rule (for Stage 1+): `speaker_source = "inferred"` chunks
+  are attributed as "the hosts asked / the guest said", never as a named
+  host's personal view — multi-tagging hosts would conflate "one of them
+  asked this" (true) with "they co-endorse this" (often false).
+- Entity resolution via curated table (`scraper/speakers.py`), not NER: 298
+  labels → canonical map (Benjamin/Ben Felix + 776 turns merged) + junk set
+  (book titles, section markers). Observed `speaker` fields never rewritten.
+
+### Added / fixed
+- `scraper enrich` CLI step (silver-layer enrichment, re-runnable; part of
+  `refresh`); junk labels excluded at parse; `Disclosure` boilerplate;
+  speaker regex tolerates space before colon (recovered ~580 labeled turns).
+- Notebook second pass: speaker inventory, attribution coverage, boilerplate
+  scan.
+
+### Coverage after enrichment
+- **95.6% of transcript text attributed** (71.1% observed + 24.5% inferred
+  guest), vs 71.3% before. Unattributed questions: 3.6%; boilerplate 0.5%.
+- Boilerplate: 294/430 transcripts share one intro line; 202/430 have
+  disclaimer-ish tails — tag at chunk time, keep in records.
+
 ## 2026-07-05 (later) — corpus-stats EDA + crypto series joins the Corpus
 
 ### Decisions (grilled)

@@ -91,6 +91,16 @@ alternative ("any big text mass is a transcript") would silently misfile
 normal path, because it runs exactly where structure already failed.
 _Dig deeper: precision vs. recall in heuristics, conservative fallbacks._
 
+### Attribution asymmetry (infer only what evidence supports)
+Interview answers got attributed (single guest in every title, corroborated
+by first-name addressing); interview questions did not (2/3 of episodes
+carry no evidence of which hosts were present). The same enrichment step can
+be strong on one field and unjustifiable on its neighbor — evidence budgets
+are per-claim, not per-step. Related: an uncertainty set ("one of the hosts
+asked this") and a co-endorsement claim ("the hosts think this") can share
+storage but are different assertions; generation must only voice the first.
+_Dig deeper: provenance, claim-level confidence, entity resolution vs NER._
+
 ### Orchestration (queued for stretch)
 The automated weekly Refresh will be built with Airflow — DAGs, scheduling,
 retries, alerting, backfills — deliberately oversized for one weekly job,
