@@ -213,7 +213,8 @@ wrangler, behind a manual approval initially.
 ## Status
 
 - [x] Planning grilled and written (2026-07-04)
-- [ ] Stage 0 — scraper + corpus
+- [x] Stage 0 — scraper + corpus (2026-07-07: 430 Episode Records, EDA
+      notebook, attribution enrichment, data in R2)
 - [ ] Stage 1 — naive RAG
 - [ ] Stage 2 — eval harness
 - [ ] Stage 3 — hybrid search

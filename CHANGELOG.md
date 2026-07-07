@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-07 — data in R2; Stage 0 complete
+
+- First `make sync-data` run: 939 files / 236.8 MiB to the private
+  `rrrag-data` bucket, `rclone check --checksum` clean. All three ADR-0004
+  sync channels now real: code → GitHub, environment → devcontainer,
+  data → R2. The bronze layer is no longer single-machine.
+- Stage 0 checked off. Next: Stage 1 (naive RAG baseline).
+
 ## 2026-07-06 — attribution enrichment + speaker table + notebook second pass
 
 ### Decisions
