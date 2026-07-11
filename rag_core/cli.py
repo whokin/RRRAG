@@ -15,9 +15,15 @@ def main() -> None:
     p_search.add_argument("query")
     p_search.add_argument("-k", type=int, default=8)
 
-    p_ask = sub.add_parser("ask", help="retrieve + generate an answer")
+    p_ask = sub.add_parser("ask", help="retrieve + generate an answer (needs ANTHROPIC_API_KEY)")
     p_ask.add_argument("question")
     p_ask.add_argument("-k", type=int, default=8)
+
+    p_prompt = sub.add_parser(
+        "prompt", help="retrieve + print the stuffed prompt (pipe into `claude -p` on the host)"
+    )
+    p_prompt.add_argument("question")
+    p_prompt.add_argument("-k", type=int, default=8)
 
     args = ap.parse_args()
 
@@ -31,6 +37,11 @@ def main() -> None:
         for r in index.search(args.query, k=args.k):
             head = r["text"][:140].replace("\n", " ")
             print(f"{r['_distance']:.4f}  {r['series']} {r['episode']:>3} #{r['chunk_index']:<3} {head}")
+    elif args.command == "prompt":
+        from . import answer
+
+        user_content, _rows = answer.build_prompt(args.question, k=args.k)
+        print(f"{answer.SYSTEM}\n\n{user_content}")
     elif args.command == "ask":
         from . import answer
 

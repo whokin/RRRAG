@@ -59,8 +59,14 @@ uv run scraper status                # Manifest summary: counts by status, serie
 uv run rag index               # chunk the corpus, embed via Voyage, write the LanceDB table
 uv run rag index --limit 50    # smoke-test on the first 50 chunks
 uv run rag search "covered calls"       # retrieval only, no LLM call — good for eyeballing
-uv run rag ask "what does Ben think about covered calls?"
+uv run rag ask "what does Ben think about covered calls?"   # needs ANTHROPIC_API_KEY
+uv run rag prompt "..."        # print the stuffed prompt instead of calling the API
 ```
+
+**`./ask.sh "question"`** (host, not container) — subscription pathway:
+runs retrieval in the container via `rag prompt`, pipes the stuffed prompt
+into the host's `claude -p` (billed to a Claude subscription). Same prompt
+bytes as `rag ask`; human-in-the-loop experimentation only.
 
 **`make`** targets wrap the above for the weekend ritual (see the
 [Makefile](Makefile) for the R2 sync mechanics):

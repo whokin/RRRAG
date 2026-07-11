@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-07-11 — Stage 1 complete via subscription pathway; three-question test passed
+
+- **Subscription pathway** for generation while API credits are deferred:
+  `rag prompt` prints the exact stuffed prompt (shared `build_prompt` with
+  the API path — byte-identical, answers stay comparable) and `./ask.sh`
+  pipes it into the host's `claude -p` (billed to the Claude subscription,
+  human-in-the-loop only; the product path remains `rag ask` + API).
+  Gotcha: `claude -p` abandons stdin after 3s — buffer the container output
+  fully before invoking.
+- **Three-question test, all passed:**
+  1. *Easy* (what is the show): correct, cited, traced host roster changes
+     across eras, and flagged its own retrieval limitation.
+  2. *Specific* (Cederburg lifecycle): headline finding + methodology +
+     the actual controversies (leverage cost, 96% drawdown, Sharpe-vs-utility
+     yardstick fight), all cited to episodes 281/284/345/350.
+  3. *Honest failure* (fictional 2026 budget question): declined to
+     speculate, said what the excerpts do cover, and applied the
+     inferred-attribution rule unprompted (Ben+Mark, not Cameron; guest's
+     views his own).
+- Trace logging live: every `rag ask` appends question/chunks/answer/usage
+  to `data/traces.jsonl` (subscription-path answers are not traced — noted
+  limitation).
+- **Stage 1 checked off.** Caveat: `rag ask` (API path) is built but
+  unexercised until credits; prompt parity is guaranteed by construction.
+
 ## 2026-07-07 (later) — full index built; retrieval verified
 
 - Voyage: no-card tier is 3 RPM **and** 10K TPM (TPM binding); adding a

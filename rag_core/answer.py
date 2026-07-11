@@ -30,23 +30,26 @@ def _label(row: dict) -> str:
     return f"{series}{row['episode']}"
 
 
-def ask(question: str, k: int = 8) -> dict:
+def build_prompt(question: str, k: int = 8) -> tuple[str, list[dict]]:
+    """Retrieval + prompt stuffing, shared by the API path (ask) and the
+    subscription path (rag prompt | claude -p) so both send byte-identical
+    prompts — answers stay comparable across the two."""
     rows = index.search(question, k=k)
     excerpts = "\n\n".join(
         f"--- Excerpt {i + 1}: {_label(r)} — \"{r['title']}\" ({r['date']}) ---\n{r['text']}"
         for i, r in enumerate(rows)
     )
+    return f"{excerpts}\n\nQuestion: {question}", rows
+
+
+def ask(question: str, k: int = 8) -> dict:
+    user_content, rows = build_prompt(question, k=k)
     client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY
     response = client.messages.create(
         model=MODEL,
         max_tokens=4096,
         system=SYSTEM,
-        messages=[
-            {
-                "role": "user",
-                "content": f"{excerpts}\n\nQuestion: {question}",
-            }
-        ],
+        messages=[{"role": "user", "content": user_content}],
     )
     if response.stop_reason == "refusal":
         answer = "(The model declined to answer this request.)"

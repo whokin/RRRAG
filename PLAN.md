@@ -215,7 +215,9 @@ wrangler, behind a manual approval initially.
 - [x] Planning grilled and written (2026-07-04)
 - [x] Stage 0 — scraper + corpus (2026-07-07: 430 Episode Records, EDA
       notebook, attribution enrichment, data in R2)
-- [ ] Stage 1 — naive RAG
+- [x] Stage 1 — naive RAG (2026-07-11: 10,195-chunk chunks_v1 index,
+      retrieval + generation verified on the three-question test; API path
+      awaits credits — subscription pathway via `ask.sh` meanwhile)
 - [ ] Stage 2 — eval harness
 - [ ] Stage 3 — hybrid search
 - [ ] Stage 4 — reranker → **ship**
