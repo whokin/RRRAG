@@ -7,8 +7,10 @@ understanding is the primary product; the hosted tool is the artifact.
 
 - [PLAN.md](PLAN.md) — the roadmap: dataset, learning stages, product
 - [CONTEXT.md](CONTEXT.md) — the project glossary
+- [CLAUDE.md](CLAUDE.md) — working agreement for Claude sessions (learning protocol)
 - [docs/adr/](docs/adr/) — architecture decision records
 - [docs/LEARNING.md](docs/LEARNING.md) — learning journal of concepts visited
+- [docs/sessions/](docs/sessions/) — briefs for upcoming work sessions
 - [CHANGELOG.md](CHANGELOG.md) — per-session log of what changed and what it found
 
 **Note on data:** the corpus is scraped from rationalreminder.ca and is their
@@ -57,7 +59,9 @@ uv run scraper status                # Manifest summary: counts by status, serie
 
 ```bash
 uv run rag index               # chunk the corpus, embed via Voyage, write the LanceDB table
+                               # (resumable: commits every 120 chunks, skips existing rows)
 uv run rag index --limit 50    # smoke-test on the first 50 chunks
+uv run rag index --rebuild     # drop the table and start fresh
 uv run rag search "covered calls"       # retrieval only, no LLM call — good for eyeballing
 uv run rag ask "what does Ben think about covered calls?"   # needs ANTHROPIC_API_KEY
 uv run rag prompt "..."        # print the stuffed prompt instead of calling the API
@@ -67,6 +71,19 @@ uv run rag prompt "..."        # print the stuffed prompt instead of calling the
 runs retrieval in the container via `rag prompt`, pipes the stuffed prompt
 into the host's `claude -p` (billed to a Claude subscription). Same prompt
 bytes as `rag ask`; human-in-the-loop experimentation only.
+
+**`evals`** — the eval harness (Stage 2; see PLAN.md's Eval strategy):
+
+```bash
+uv run evals retrieval             # hit-rate@k + MRR vs the Golden Set; saves evals/runs/<date>-<label>.json
+uv run evals retrieval --no-save   # print metrics without recording a run
+uv run evals synth-prompts --n 35  # sample chunks, write generation prompts (data/synth/)
+uv run evals synth-collect         # validate generated questions into evals/golden.jsonl
+```
+
+**`./synth.sh`** (host) — bridges synth-prompts → synth-collect: pipes each
+prompt through `claude -p` (subscription) into `data/synth/answers.jsonl`.
+Resumable; skips already-answered chunks.
 
 **`make`** targets wrap the above for the weekend ritual (see the
 [Makefile](Makefile) for the R2 sync mechanics):
@@ -84,4 +101,7 @@ make pull-data   # download R2 -> data/ (fresh machine)
 See PLAN.md's [Status](PLAN.md#status) checklist for the current stage.
 Stage 0 (scraper + corpus) is done: 430 Episode Records, EDA notebook at
 [experiments/corpus_stats.ipynb](experiments/corpus_stats.ipynb), data synced
-to R2. Stage 1 (naive RAG) is in progress in [rag_core/](rag_core/).
+to R2. Stage 1 (naive RAG, [rag_core/](rag_core/)) is done: 10,195-chunk
+index, three-question test passed. Stage 2 (eval harness, [evals/](evals/))
+is in progress: 35 synthetic Golden Questions in; hand-written questions and
+the baseline run are queued as [session briefs](docs/sessions/).

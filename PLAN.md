@@ -38,18 +38,25 @@ everything, structured:
 
 ```json
 {
+  "series": "main",
   "episode": 416,
   "title": "...",
   "date": "2026-07-02",
-  "hosts": ["Benjamin Felix", "Dan Bortolotti"],
-  "guests": ["..."],
+  "speakers": ["Ben Wilson", "Benjamin Felix", "Dan Bortolotti"],
   "summary": "...",
   "key_points": [{"timestamp": "0:01:12", "text": "..."}],
-  "transcript": [{"speaker": "Benjamin Felix", "text": "..."}],
+  "transcript": [
+    {"speaker": "Benjamin Felix", "text": "..."},
+    {"speaker": null, "style": "answer", "inferred_speaker": "Guest Name", "text": "..."}
+  ],
   "links": [{"title": "...", "url": "..."}],
   "source_url": "https://rationalreminder.ca/podcast/416"
 }
 ```
+
+(`speaker` is always the observed label as printed; `style` and
+`inferred_speaker` are enrichment on unattributed turns — see CHANGELOG
+2026-07-06 for the evidence-bounded attribution rules.)
 
 **Rules:**
 - The scraper is a **permanent, recurring tool**, not a one-off: after the
@@ -63,8 +70,9 @@ everything, structured:
   by a separate parser, re-runnable forever without re-fetching.
 - Discovery via `sitemap.xml` (one polite request, the file published *for*
   crawlers), filtered to episode pages — no guessing URL patterns. This seeds
-  the **Manifest**: a per-episode ledger (URL, episode number, status:
-  discovered → fetched → parsed / flagged → backfilled).
+  the **Manifest**: a per-episode ledger (URL, episode identity, status:
+  discovered → fetched → parsed / flagged → backfilled, plus alias for
+  duplicate URLs of the same episode).
 - **Minimum viable Episode Record:** episode identity (series + number within
   the series; main series implied, crypto series numbered from its titles),
   title, publish date, source URL, and transcript *text*. Everything else — Speaker Turns, summary,
@@ -77,8 +85,9 @@ everything, structured:
 - **Scraper layout:** top-level `scraper/` package — Pillar 1 tooling, neither
   `experiments/` nor product code. CLI subcommands mirror the pipeline:
   `discover` (sitemap → Manifest), `fetch` (Manifest → Page Snapshots),
-  `parse` (Page Snapshots → Episode Records), `refresh` (all three, new
-  episodes only). httpx + BeautifulSoup, single root `pyproject.toml` (uv),
+  `parse` (Page Snapshots → Episode Records), `enrich` (derived attribution
+  into Episode Records), `refresh` (all four, new episodes only), `status`
+  (Manifest summary). httpx + BeautifulSoup, single root `pyproject.toml` (uv),
   Manifest at `data/manifest.json` (JSON, not SQLite — ~430 rows, eyeballable
   diffs).
 - **Probe before crawl:** the first run covers 5 episodes spanning the show's
@@ -204,8 +213,10 @@ wrangler, behind a manual approval initially.
 
 ## Costs
 
-- Embedding the full corpus (~430 episodes, ~50–65k chunks, ~15–20M tokens):
-  single-digit dollars, re-runnable.
+- Embedding the full corpus (measured: 430 episodes, 10,195 chunks, ~8M
+  tokens): $0 — well inside Voyage's 200M free-token grant; a full rebuild
+  takes ~2 minutes at standard rate limits. (Planning guess was 50–65k
+  chunks / 15–20M tokens — see LEARNING.md, "measure, don't extrapolate".)
 - Per-query: cents. Access-gating makes abuse a non-problem at launch.
 - Watch: eval runs (mitigated by caching judge calls).
 - Fixed monthly: ~zero (embedded store, static frontend, one small container).
@@ -218,7 +229,9 @@ wrangler, behind a manual approval initially.
 - [x] Stage 1 — naive RAG (2026-07-11: 10,195-chunk chunks_v1 index,
       retrieval + generation verified on the three-question test; API path
       awaits credits — subscription pathway via `ask.sh` meanwhile)
-- [ ] Stage 2 — eval harness
+- [ ] Stage 2 — eval harness (in progress: evals/ package + 35 synthetic
+      Golden Questions done; hand-written questions, AMA curation, and the
+      baseline run are queued in docs/sessions/ briefs 02–03)
 - [ ] Stage 3 — hybrid search
 - [ ] Stage 4 — reranker → **ship**
 - [ ] Stages 5–7 — stretch

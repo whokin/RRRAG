@@ -69,6 +69,12 @@ A reference attached to an answer that deep-links to a specific episode and
 timestamp.
 _Avoid_: source, footnote
 
+**Trace**:
+The recorded story of one ask: the question, which Chunks were retrieved at
+what distances, the answer, and token usage. The evidence used to isolate
+whether a bad answer was retrieval's, generation's, or the judge's fault.
+_Avoid_: log (a Trace is per-question and structured, not a stream)
+
 ### Learning
 
 **Stage**:
@@ -93,3 +99,10 @@ _Avoid_: test case, query (a query is what a user types)
 **Golden Set**:
 The fixed collection of Golden Questions every Stage is measured against.
 _Avoid_: benchmark, test suite
+
+**Provenance** (of a Golden Question):
+How the question came to exist — hand (written by a person), synthetic
+(LLM-generated from a sampled Chunk), or ama (a real listener question mined
+from an AMA episode). Metrics are always splittable by provenance because
+each carries a different bias.
+_Avoid_: type, category

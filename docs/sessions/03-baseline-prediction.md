@@ -22,8 +22,15 @@ MRR before predicting — learning-dense, slow down here).
 This baseline is the bar every Stage 3+ technique must beat — treat the
 numbers as the project's most load-bearing artifact after the corpus.
 
+**Spoiler note (2026-07-11):** the synthetic-only numbers were accidentally
+revealed during the doc-audit smoke test — synthetic n=35: hit@8 = 0.857,
+MRR = 0.668, with 5 complete misses. Predictions below therefore focus on
+the unspoiled parts: the hand and ama provenances, and whether each beats
+or trails synthetic (and why). Also worth predicting: what's wrong with the
+5 synthetic questions that missed entirely?
+
 ## Predictions (fill in before running — do not peek at results first)
 
-- hand:      hit@8 = ____   mrr = ____   because:
-- synthetic: hit@8 = ____   mrr = ____   because:
-- ama:       hit@8 = ____   mrr = ____   because:
+- hand:      hit@8 = ____   mrr = ____   vs synthetic (higher/lower): ____   because:
+- ama:       hit@8 = ____   mrr = ____   vs synthetic (higher/lower): ____   because:
+- the 5 synthetic complete-misses are probably failing because: ____

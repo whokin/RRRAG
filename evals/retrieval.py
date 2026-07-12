@@ -10,7 +10,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from rag_core import index
+from rag_core import embeddings, index
 
 from . import golden
 
@@ -65,7 +65,7 @@ def evaluate(k: int = max(K_VALUES)) -> dict:
         "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "k": k,
         "index_table": index.TABLE,
-        "embedding_model": "voyage-3.5",
+        "embedding_model": embeddings.MODEL,
         "overall": aggregate(per_question),
         "by_provenance": by_provenance,
         "per_question": per_question,
