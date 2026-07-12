@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-07-11 (later) — learning protocol + session briefs; synthetic questions in
+
+- **Learning protocol adopted** (user's call after flagging that fast
+  execution was crowding out their learning): slow down at learning-dense
+  code, predict-before-reveal on every measurement, the user writes
+  LEARNING.md entries themselves (Claude prompts + corrects), quiz
+  checkpoints per component. Codified in the new repo `CLAUDE.md` so every
+  fresh session follows it automatically.
+- **Session briefs** in `docs/sessions/` — the cross-session todo
+  mechanism (repo-as-memory instead of chat context): 01 end-to-end
+  walkthrough (user drives), 02 golden-questions co-writing, 03 baseline
+  predictions + measurement. Remaining Stage 2 work is deliberately split
+  across those sessions.
+- **35 synthetic Golden Questions** generated (claude -p transport,
+  `evals synth-prompts` → `synth.sh` → `evals synth-collect`), all passing
+  the 6-word-shingle vocabulary-leak guard; appended to evals/golden.jsonl.
+  Hand-written + AMA questions deferred to session 02; baseline deferred to
+  session 03 (predictions first).
+
 ## 2026-07-11 — Stage 1 complete via subscription pathway; three-question test passed
 
 - **Subscription pathway** for generation while API credits are deferred:

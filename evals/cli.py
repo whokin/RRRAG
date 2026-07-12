@@ -12,9 +12,22 @@ def main() -> None:
     p_ret.add_argument("-k", type=int, default=8)
     p_ret.add_argument("--no-save", action="store_true")
 
+    p_sp = sub.add_parser("synth-prompts", help="sample chunks, write generation prompts")
+    p_sp.add_argument("--n", type=int, default=35)
+    p_sp.add_argument("--seed", type=int, default=42)
+    sub.add_parser("synth-collect", help="validate generated questions into golden.jsonl")
+
     args = ap.parse_args()
 
-    if args.command == "retrieval":
+    if args.command == "synth-prompts":
+        from . import synthesize
+
+        synthesize.make_prompts(n=args.n, seed=args.seed)
+    elif args.command == "synth-collect":
+        from . import synthesize
+
+        synthesize.collect()
+    elif args.command == "retrieval":
         from . import retrieval
 
         result = retrieval.evaluate(k=args.k)

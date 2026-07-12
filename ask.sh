@@ -13,3 +13,5 @@ K="${2:-8}"
 PROMPT="$(docker run --rm --env-file .env -v "$PWD:/workspaces/RRRAG" -w /workspaces/RRRAG \
   rrrag-dev uv run rag prompt "$Q" -k "$K")"
 printf '%s' "$PROMPT" | claude -p
+
+
