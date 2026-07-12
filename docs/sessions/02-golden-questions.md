@@ -7,6 +7,10 @@ curated AMA questions (provenance "ama") appended to evals/golden.jsonl.
 **Read first:** CHANGELOG.md (top entries), evals/golden.py docstring
 (schema), PLAN.md §Eval strategy.
 
+**Tags:** `[concept]` — question design and the vocabulary-leak reasoning
+(user sketches first); `[plumbing]` — the jsonl mechanics and AMA
+extraction.
+
 **Process (agreed):** fully co-written — the user supplies topics or rough
 phrasings a real listener would ask; Claude proposes final wording, pins
 the source episode(s) via `rag search` + the Manifest, and the user
@@ -23,6 +27,8 @@ approves each line before it's written.
   lightly, pin to the AMA episode that answers them.
 
 **Done when:** golden.jsonl has ~50 questions across three provenances,
-validated by `uv run evals retrieval --no-save` loading without errors
-(don't study the metric output yet — that's session 03's reveal), and the
-user can articulate why vocabulary leak inflates retrieval scores.
+validated by `uv run evals retrieval --no-save > /dev/null` exiting
+cleanly (stdout discarded on purpose — the numbers are session 03's
+reveal; the predict-gate hook exempts `--no-save` for exactly this
+validation), and the user can articulate why vocabulary leak inflates
+retrieval scores.

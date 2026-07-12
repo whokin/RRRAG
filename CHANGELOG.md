@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-07-12 — learning protocol v2: structural triggers instead of mid-session judgment
+
+- **Why:** researched whether the protocol matches a named practice — it's
+  a bundle of validated pedagogy (predict-before-reveal ≈ Predict-Observe-
+  Explain, user-written LEARNING.md ≈ the protégé effect, quiz checkpoints
+  ≈ checks for understanding), but the v1 triggers all relied on noticing
+  mid-session that a step was due — the exact judgment that failed
+  2026-07-11. v2 moves triggers to structurally reliable points.
+- **Session-start ritual** (every session — user's cadence call): check
+  the new Learning protocol ledger in PLAN.md, pay owed quizzes, one
+  spaced-retrieval question from older LEARNING.md entries. Quizzes now
+  deliberately happen the session AFTER a component is built (spaced
+  retrieval beats immediate fluency checks).
+- **Predict-gate hook** (`.claude/hooks/predict_gate.py`, wired in
+  `.claude/settings.json`): PreToolUse hook that blocks `uv run evals
+  <retrieval|generation|judge|run>` unless PLAN.md's ledger holds an open
+  `- PREDICTION` line; `--no-save` validation runs are exempt (session 02
+  needs a loads-cleanly check without spoiling numbers). Tested all five
+  paths.
+- **Density classified at plan time:** session briefs tag work `[concept]`
+  / `[plumbing]` when written (02 and 03 retro-tagged); `[concept]` work =
+  user sketches the design first, predictions carry number + confidence,
+  no delegation to subagents.
+- Deliberately not adopted: user hand-writes core concept code (faded
+  worked examples) — revisit if the goal shifts from understanding to
+  building unaided.
+
 ## 2026-07-11 (later) — learning protocol + session briefs; synthetic questions in
 
 - **Learning protocol adopted** (user's call after flagging that fast

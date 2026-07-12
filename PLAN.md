@@ -221,6 +221,21 @@ wrangler, behind a manual approval initially.
 - Watch: eval runs (mitigated by caching judge calls).
 - Fixed monthly: ~zero (embedded store, static frontend, one small container).
 
+## Learning protocol ledger
+
+Open items from CLAUDE.md's learning protocol. Checked at every session
+start; the predict-gate hook (.claude/hooks/predict_gate.py) greps this
+file for open predictions before letting an eval run. Entry formats
+(exact prefixes matter — the hook matches on `- PREDICTION`):
+
+    - PREDICTION (open): <experiment> — <number + confidence> (YYYY-MM-DD)
+    - QUIZ OWED: <component> (built YYYY-MM-DD)
+
+Clear a line by deleting it once resolved (prediction compared against
+the result / quiz paid at a session start); don't let lines go stale.
+
+_Nothing outstanding as of 2026-07-12._
+
 ## Status
 
 - [x] Planning grilled and written (2026-07-04)
